@@ -1,0 +1,40 @@
+{
+  "extensionName": {
+    "message": "CleanMailbox Thunderbird Extension"
+  },
+  "extensionDescription": {
+    "message": "Extension pour signaler les spams et gérer la blacklist via l'API CleanMailbox"
+  },
+  "popupTitle": {
+    "message": "Actions CleanMailbox"
+  },
+  "reportSpamButton": {
+    "message": "Signaler comme Spam"
+  },
+  "addToBlacklistButton": {
+    "message": "Ajouter à la Blacklist"
+  },
+  "configurationRequired": {
+    "message": "Veuillez configurer l'extension d'abord."
+  },
+  "spamReportedSuccess": {
+    "message": "Spam signalé avec succès !"
+  },
+  "spamReportError": {
+    "message": "Erreur lors du signalement du spam."
+  },
+  "blacklistAddSuccess": {
+    "message": "Adresse ajoutée à la blacklist avec succès !"
+  },
+  "blacklistAddError": {
+    "message": "Erreur lors de l'ajout à la blacklist."
+  },
+  "errorOccurred": {
+    "message": "Erreur: $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  }
+} 

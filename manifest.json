@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "CleanMailbox Thunderbird Extension",
+  "version": "0.11.0",
+  "description": "Extension non-officielle pour signaler les spams et gérer la blacklist via l'API CleanMailbox",
+  "author": "Ethersys",
+  "default_locale": "fr",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "contact@ethersys.fr",
+      "strict_min_version": "140.0"
+    }
+  },
+  "permissions": [
+    "accountsRead",
+    "messagesRead",
+    "messagesMove",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://manager.clean-mailbox.com/*"
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true,
+    "open_in_tab": true
+  },
+  "message_display_action": {
+    "browser_style": true,
+    "default_popup": "popup/popup.html",
+    "default_icon": "icons/icon-32.png",
+    "default_title": "CleanMailbox"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "icons": {
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  }
+}

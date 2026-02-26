@@ -1,0 +1,14 @@
+{
+  "name": "cleanmailbox-thunderbird-extension",
+  "version": "0.11.0",
+  "description": "Extension Thunderbird pour signaler les spams et gérer la blacklist via l'API CleanMailbox",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "lint": "eslint .",
+    "package": "zip -r cleanmailbox.xpi manifest.json background.js popup/ options/ _locales/ icons/"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.2",
+    "web-ext": "^9.3.0"
+  }
+}

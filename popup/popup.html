@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title data-i18n="popupTitle">Actions CleanMailbox</title>
+    <style>
+        html, body {
+            font: message-box;
+        }
+        body {
+            width: 200px;
+            padding: 10px;
+        }
+        button {
+            font: inherit;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="spamButton" data-i18n="reportSpamButton">Signaler comme Spam</button>
+    <button id="blacklistButton" data-i18n="addToBlacklistButton">Ajouter à la Blacklist</button>
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build artifact
+cleanmailbox.xpi
+
+# Environment / secrets
+.env
+.env.*
+*.local
+
+# IDE / editor
+.idea/
+*.swp
+*.swo
+.vscode/
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+npm-debug.log*
+.npm
