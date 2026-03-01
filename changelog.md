@@ -3,6 +3,20 @@
 Ce fichier résume les changements importants pour les **utilisateurs finaux** à partir de la version **0.11.0**.  
 Les détails techniques et le journal complet restent dans `history.md`.
 
+## 0.12.0 — 2026-02-28
+
+- **Signalement spam et retour API**
+  - L’extension tient compte du champ `success` renvoyé par l’API CleanMailbox.
+  - Si l’API indique `success: false` (par ex. email non passé par CleanMailbox), un message « Déclaration spam échouée : [raison] » s’affiche ; le message est tout de même déplacé vers **Indésirables**.
+- **Blacklist par domaine**
+  - Nouveau bouton « Ajouter tout le domaine [domaine] à la Blacklist » : blacklist de l’ensemble du domaine de l’expéditeur (envoi de `*@domaine` à l’API).
+  - Message de confirmation dédié : « Domaine ajouté à la blacklist avec succès ! »
+- **Libellés dynamiques des boutons**
+  - Le bouton d’ajout d’adresse affiche désormais « Ajouter [email expéditeur] à la Blacklist ».
+  - Le bouton d’ajout de domaine affiche « Ajouter tout le domaine [domaine] à la Blacklist » lorsque l’expéditeur est connu.
+- **Correctif signalement spam sous Thunderbird**
+  - Correction du « NetworkError when attempting to fetch resource » : l’appel API report utilise désormais XMLHttpRequest pour recevoir correctement les réponses 4xx (ex. 401) et afficher la raison renvoyée par l’API.
+
 ## 0.11.0 — 2026-02-26
 
 - **Sécurité de la clé API clarifiée**

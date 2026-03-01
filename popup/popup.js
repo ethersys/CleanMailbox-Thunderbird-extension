@@ -17,7 +17,10 @@ async function sendBackgroundAction(action) {
   });
 
   if (!response?.success) {
-    throw new Error(response?.error || "Erreur inconnue");
+    const err = new Error(response?.error || "Erreur inconnue");
+    err.errorCode = response?.errorCode;
+    err.reason = response?.reason;
+    throw err;
   }
 
   return response;
@@ -28,7 +31,12 @@ async function reportSpam() {
     await sendBackgroundAction("reportSpam");
     alert(browser.i18n.getMessage("spamReportedSuccess"));
   } catch (error) {
-    alert(browser.i18n.getMessage("errorOccurred", error.message));
+    if (error.errorCode === "detectionNotTransmitted") {
+      const reason = error.reason || "Mail non passé par CleanMailbox";
+      alert(browser.i18n.getMessage("detectionNotTransmitted", reason));
+    } else {
+      alert(browser.i18n.getMessage("errorOccurred", error.message));
+    }
   }
 }
 
@@ -41,6 +49,15 @@ async function addToBlacklist() {
   }
 }
 
+async function addDomainToBlacklist() {
+  try {
+    await sendBackgroundAction("addDomainToBlacklist");
+    alert(browser.i18n.getMessage("blacklistDomainAddSuccess"));
+  } catch (error) {
+    alert(browser.i18n.getMessage("errorOccurred", error.message));
+  }
+}
+
 document.querySelectorAll("[data-i18n]").forEach((element) => {
   const message = browser.i18n.getMessage(element.getAttribute("data-i18n"));
   if (message) {
@@ -48,5 +65,44 @@ document.querySelectorAll("[data-i18n]").forEach((element) => {
   }
 });
 
+async function updateBlacklistButtonLabels() {
+  const blacklistBtn = document.getElementById("blacklistButton");
+  const domainBtn = document.getElementById("blacklistDomainButton");
+  let messageId;
+  try {
+    messageId = await getCurrentMessageId();
+  } catch {
+    return;
+  }
+  const response = await browser.runtime.sendMessage({
+    action: "getDisplayedMessageInfo",
+    data: { messageId },
+  });
+  if (!response?.success) {
+    return;
+  }
+  const { senderEmail, senderDomain } = response;
+  if (senderEmail) {
+    blacklistBtn.textContent = browser.i18n.getMessage(
+      "addToBlacklistButtonWithEmail",
+      senderEmail,
+    );
+  }
+  if (senderDomain) {
+    domainBtn.textContent = browser.i18n.getMessage(
+      "addDomainToBlacklistButtonWithDomain",
+      senderDomain,
+    );
+    domainBtn.disabled = false;
+  } else {
+    domainBtn.disabled = true;
+  }
+}
+
+updateBlacklistButtonLabels();
+
 document.getElementById("spamButton").addEventListener("click", reportSpam);
 document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
+document
+  .getElementById("blacklistDomainButton")
+  .addEventListener("click", addDomainToBlacklist);

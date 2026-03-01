@@ -4,7 +4,13 @@ browser.runtime.onStartup.addListener(() => {
   console.log("CleanMailbox Extension demarree");
 });
 
-const ALLOWED_ACTIONS = new Set(["reportSpam", "addToBlacklist", "getBlacklist"]);
+const ALLOWED_ACTIONS = new Set([
+  "reportSpam",
+  "addToBlacklist",
+  "addDomainToBlacklist",
+  "getBlacklist",
+  "getDisplayedMessageInfo",
+]);
 
 function isPayloadValidForMessageAction(data) {
   return data != null && typeof data === "object" && data.messageId != null;
@@ -20,7 +26,12 @@ browser.runtime.onMessage.addListener((message, sender) => {
     return Promise.resolve({ success: false, error: "Requête invalide." });
   }
 
-  if (action === "reportSpam" || action === "addToBlacklist") {
+  if (
+    action === "reportSpam" ||
+    action === "addToBlacklist" ||
+    action === "addDomainToBlacklist" ||
+    action === "getDisplayedMessageInfo"
+  ) {
     if (!isPayloadValidForMessageAction(message?.data)) {
       return Promise.resolve({ success: false, error: "Données invalides." });
     }
@@ -31,6 +42,10 @@ browser.runtime.onMessage.addListener((message, sender) => {
       return handleSpamReport(message.data);
     case "addToBlacklist":
       return addToBlacklist(message.data);
+    case "addDomainToBlacklist":
+      return addDomainToBlacklist(message.data);
+    case "getDisplayedMessageInfo":
+      return getDisplayedMessageInfo(message.data);
     case "getBlacklist":
       return getBlacklist();
     default:
@@ -47,6 +62,35 @@ async function getBlacklist() {
   }
 }
 
+/**
+ * Requête POST report via XHR pour éviter NetworkError sous Thunderbird
+ * lorsque le serveur renvoie 4xx/5xx (fetch peut alors lever au lieu de retourner la réponse).
+ */
+function fetchReportWithXHR(url, headers, body) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    Object.entries(headers).forEach(([key, value]) => {
+      xhr.setRequestHeader(key, value);
+    });
+    xhr.onload = () => {
+      resolve({
+        ok: xhr.status >= 200 && xhr.status < 300,
+        status: xhr.status,
+        responseText: xhr.responseText ?? "",
+      });
+    };
+    xhr.onerror = () => {
+      reject(new Error("NetworkError when attempting to fetch resource"));
+    };
+    xhr.ontimeout = () => {
+      reject(new Error("Requête expirée."));
+    };
+    xhr.timeout = 60000;
+    xhr.send(body);
+  });
+}
+
 async function handleSpamReport(data) {
   try {
     const messageId = data?.messageId;
@@ -57,19 +101,40 @@ async function handleSpamReport(data) {
     const config = await getRequiredConfig();
     const rawBase64 = await getRawMessageBase64(messageId);
 
-    const response = await fetch(`${CLEANMAILBOX_BASE_URL}/public-api/report`, {
-      method: "POST",
-      headers: {
+    const { ok, responseText } = await fetchReportWithXHR(
+      `${CLEANMAILBOX_BASE_URL}/public-api/report`,
+      {
         "Api-Key": config.apiKey,
         email: config.email,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ file: rawBase64 }),
-    });
+      JSON.stringify({ file: rawBase64 }),
+    );
 
-    const payload = await parseApiResponse(response);
+    let payload = {};
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      payload = { raw: responseText };
+    }
+
     await moveMessageToJunk(messageId);
-    return { success: true, result: payload };
+
+    const defaultReason = "Mail non passé par CleanMailbox";
+    const reason =
+      payload.reason != null && String(payload.reason).trim() !== ""
+        ? String(payload.reason).trim()
+        : defaultReason;
+
+    if (ok && payload.success === true) {
+      return { success: true, result: payload };
+    }
+
+    return {
+      success: false,
+      errorCode: "detectionNotTransmitted",
+      reason,
+    };
   } catch (error) {
     console.error("Erreur lors du signalement du spam:", error);
     return { success: false, error: error.message };
@@ -118,6 +183,71 @@ async function addToBlacklist(data) {
   }
 }
 
+async function getDisplayedMessageInfo(data) {
+  try {
+    const messageId = data?.messageId;
+    if (!messageId) {
+      return { success: false, error: "Message introuvable." };
+    }
+    const message = await browser.messages.get(messageId);
+    const senderEmail = extractEmailAddress(message?.author);
+    const senderDomain = extractSenderDomain(senderEmail);
+    return {
+      success: true,
+      senderEmail: senderEmail ?? null,
+      senderDomain: senderDomain ?? null,
+    };
+  } catch (error) {
+    console.error("Erreur getDisplayedMessageInfo:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function addDomainToBlacklist(data) {
+  try {
+    const messageId = data?.messageId;
+    if (!messageId) {
+      throw new Error("Message introuvable pour la blacklist domaine.");
+    }
+
+    const config = await getRequiredConfig();
+    const message = await browser.messages.get(messageId);
+    const senderEmail = extractEmailAddress(message?.author);
+    const senderDomain = extractSenderDomain(senderEmail);
+    const recipientDomain = extractRecipientDomain(message);
+
+    if (!senderDomain) {
+      throw new Error(
+        "Impossible de determiner le domaine de l'expediteur du message.",
+      );
+    }
+
+    if (!recipientDomain) {
+      throw new Error("Impossible de determiner le domaine du destinataire.");
+    }
+
+    const response = await fetch(
+      `${CLEANMAILBOX_BASE_URL}/public-api/domain/${encodeURIComponent(recipientDomain)}/bl`,
+      {
+        method: "PUT",
+        headers: {
+          "Api-Key": config.apiKey,
+          email: config.email,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address: `*@${senderDomain}` }),
+      },
+    );
+
+    const payload = await parseApiResponse(response);
+    await moveMessageToJunk(messageId);
+    return { success: true, result: payload };
+  } catch (error) {
+    console.error("Erreur lors de l'ajout du domaine a la blacklist:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 async function getRequiredConfig() {
   const config = await browser.storage.local.get(["apiKey", "email"]);
 
@@ -137,6 +267,14 @@ function extractEmailAddress(value) {
   const candidate = (angleMatch ? angleMatch[1] : value).trim();
   const plainMatch = candidate.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
   return plainMatch ? plainMatch[0].toLowerCase() : null;
+}
+
+function extractSenderDomain(email) {
+  if (typeof email !== "string" || !email.includes("@")) {
+    return null;
+  }
+  const part = email.slice(email.lastIndexOf("@") + 1).trim().toLowerCase();
+  return part || null;
 }
 
 function extractRecipientDomain(message) {

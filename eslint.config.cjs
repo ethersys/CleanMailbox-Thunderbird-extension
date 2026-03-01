@@ -14,6 +14,7 @@ module.exports = [
         window: "readonly",
         alert: "readonly",
         fetch: "readonly",
+        XMLHttpRequest: "readonly",
         btoa: "readonly",
         Promise: "readonly",
         Array: "readonly",

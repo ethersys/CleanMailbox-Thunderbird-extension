@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CleanMailbox Thunderbird Extension",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Extension non-officielle pour signaler les spams et gérer la blacklist via l'API CleanMailbox",
   "author": "Ethersys",
   "default_locale": "fr",

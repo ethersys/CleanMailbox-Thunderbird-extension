@@ -1,5 +1,5 @@
 [![Changelog](https://img.shields.io/badge/changelog-view%20details-lightgrey?style=flat-square&logo=gitbook&logoColor=white)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/blob/main/changelog.md)
-[![Release](https://img.shields.io/badge/release-0.11.0-blue?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases)
+[![Release](https://img.shields.io/badge/release-0.12.0-blue?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/blob/main/LICENSE)
 ![Thunderbird](https://img.shields.io/badge/Thunderbird-140+-6366f1?style=flat-square&logo=thunderbird&logoColor=white)
 ![Last Commit](https://img.shields.io/github/last-commit/ethersys/CleanMailbox-Thunderbird-extension/main?style=flat-square)
@@ -11,7 +11,7 @@
 
 **Dépôt :** [https://github.com/ethersys/CleanMailbox-Thunderbird-extension](https://github.com/ethersys/CleanMailbox-Thunderbird-extension)
 
-Extension Thunderbird (140+) pour signaler un spam ou ajouter l'expéditeur à la blacklist CleanMailbox, puis déplacer le message traité vers le dossier **Indésirables**.
+Extension Thunderbird (140+) pour signaler un spam ou ajouter l'expéditeur (ou tout un domaine) à la blacklist CleanMailbox, puis déplacer le message traité vers le dossier **Indésirables**.
 
 [CleanMailbox](https://clean-mailbox.com/) est un service français de pré-traitement des emails (anti-virus, anti-spam, anti-phishing, filtrage, challenge humain de l'expéditeur).
 
@@ -50,7 +50,7 @@ Testé sur Thunderbird v148.
 - Signalement spam : `POST https://manager.clean-mailbox.com/public-api/report`
   - body JSON : `{ "file": "<contenu-rfc822-base64>" }`
 - Ajout blacklist : `PUT https://manager.clean-mailbox.com/public-api/domain/{domaine}/bl`
-  - body JSON : `{ "address": "<expediteur@domaine>" }`
+  - body JSON : `{ "address": "<expediteur@domaine>" }` (adresse complète) ou `{ "address": "*@<domaine>" }` pour blacklister tout un domaine
 - Headers communs :
   - `Api-Key: <votre_api_key>`
   - `email: <votre_email_cleanmailbox>`
@@ -76,7 +76,7 @@ Bonnes pratiques recommandées :
 
 ### Prérequis de développement
 
-- Node.js 18+
+- Node.js 24+
 - npm 9+
 - Thunderbird 140+
 
@@ -111,8 +111,9 @@ Le build vérifie les fichiers requis puis génère `cleanmailbox.xpi`.
 1. Ouvrir un message dans Thunderbird.
 2. Cliquer sur le bouton CleanMailbox présent dans les actions du message (zone Répondre/Transférer/Archiver).
 3. Choisir :
-   - **Signaler comme Spam** pour envoyer le message brut à CleanMailbox,
-   - **Ajouter à la Blacklist** pour ajouter l'expéditeur sur le domaine du destinataire.
+   - **Signaler comme Spam** pour envoyer le message brut à CleanMailbox (si l'API indique que la détection n'a pas été transmise, un message explicatif s'affiche mais le message est tout de même déplacé vers Indésirables),
+   - **Ajouter [email expéditeur] à la Blacklist** pour ajouter l'adresse de l'expéditeur sur le domaine du destinataire,
+   - **Ajouter tout le domaine [domaine] à la Blacklist** pour blacklister l'ensemble du domaine de l'expéditeur (`*@domaine`).
 4. Si l'action réussit, le message est déplacé automatiquement dans **Indésirables**.
 
 ### Résultat attendu

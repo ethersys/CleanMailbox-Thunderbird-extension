@@ -16,6 +16,19 @@ Incrémente la version mineure à chaque modification.
 
 ## Documentation données par Clean Mailbox
 
+## Version 0.12.0 (2026-02-28)
+
+### Signalement spam — succès / raison API
+- **Comportement** : ne confirmer le signalement que si l’API retourne `success === true` ; sinon afficher « Déclaration spam échouée : [reason] » (reason = champ `reason` de l’API ou « Mail non passé par CleanMailbox » par défaut). Le message est dans tous les cas déplacé vers Indésirables.
+- **Implémentation** : dans `handleSpamReport`, parsing du corps de la réponse (y compris en cas de HTTP 4xx) ; retour `{ success: false, errorCode: "detectionNotTransmitted", reason }` pour l’UI. Popup : affichage du message i18n `detectionNotTransmitted` avec la raison. Clé i18n et libellé mis à jour (« Déclaration spam échouée »).
+- **Correctif Thunderbird** : sous TB, `fetch()` peut lever NetworkError pour les réponses 4xx. Remplacement de l’appel report par `fetchReportWithXHR()` (XMLHttpRequest) pour toujours récupérer le corps de la réponse et afficher la raison.
+
+### Blacklist — bouton domaine et libellés dynamiques
+- **Nouvelle action `addDomainToBlacklist`** : même endpoint `PUT .../domain/{recipientDomain}/bl` avec body `{ "address": "*@<senderDomain>" }` (ex. `*@example.com`). Déplacement du message vers Indésirables après succès. Message de confirmation dédié « Domaine ajouté à la blacklist avec succès ! ».
+- **Action `getDisplayedMessageInfo`** : retourne `senderEmail` et `senderDomain` (partie après `@` de l’email expéditeur) pour le popup. Fonction utilitaire `extractSenderDomain(email)` dans le background.
+- **Popup** : au chargement, appel à `getDisplayedMessageInfo` pour mettre à jour les libellés du 2e et 3e bouton (« Ajouter [email] à la Blacklist », « Ajouter tout le domaine [domaine] à la Blacklist »). 3e bouton désactivé si pas de domaine. Nouvelle clé i18n `blacklistDomainAddSuccess`, `addToBlacklistButtonWithEmail`, `addDomainToBlacklistButton` / `addDomainToBlacklistButtonWithDomain`.
+- **Versioning** : `manifest.json` et `package.json` passés en 0.12.0.
+
 ## Version 0.10.0 (2026-02-26)
 
 ### ✅ Revue technique et refactor Context7

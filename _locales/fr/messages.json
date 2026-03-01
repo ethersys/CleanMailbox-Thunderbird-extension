@@ -14,6 +14,25 @@
   "addToBlacklistButton": {
     "message": "Ajouter à la Blacklist"
   },
+  "addToBlacklistButtonWithEmail": {
+    "message": "Ajouter $EMAIL$ à la Blacklist",
+    "placeholders": {
+      "email": {
+        "content": "$1"
+      }
+    }
+  },
+  "addDomainToBlacklistButton": {
+    "message": "Ajouter tout le domaine à la Blacklist"
+  },
+  "addDomainToBlacklistButtonWithDomain": {
+    "message": "Ajouter tout le domaine $DOMAIN$ à la Blacklist",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
   "configurationRequired": {
     "message": "Veuillez configurer l'extension d'abord."
   },
@@ -29,10 +48,21 @@
   "blacklistAddError": {
     "message": "Erreur lors de l'ajout à la blacklist."
   },
+  "blacklistDomainAddSuccess": {
+    "message": "Domaine ajouté à la blacklist avec succès !"
+  },
   "errorOccurred": {
     "message": "Erreur: $MESSAGE$",
     "placeholders": {
       "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "detectionNotTransmitted": {
+    "message": "Déclaration spam échouée : $REASON$",
+    "placeholders": {
+      "reason": {
         "content": "$1"
       }
     }
