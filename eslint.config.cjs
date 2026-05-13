@@ -3,7 +3,7 @@ const js = require("@eslint/js");
 module.exports = [
   { ignores: ["node_modules/**", "*.xpi", "cleanmailbox.xpi"] },
   {
-    files: ["lib/**/*.js"],
+    files: ["lib/**/*.js", "popup/popup.js", "options/options.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -11,13 +11,16 @@ module.exports = [
         browser: "readonly",
         console: "readonly",
         document: "readonly",
+        window: "readonly",
+        alert: "readonly",
+        setTimeout: "readonly",
       },
     },
     rules: js.configs.recommended.rules,
   },
   {
     files: ["**/*.js"],
-    ignores: ["lib/**/*.js"],
+    ignores: ["lib/**/*.js", "popup/popup.js", "options/options.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "script",
