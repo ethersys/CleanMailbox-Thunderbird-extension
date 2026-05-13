@@ -17,9 +17,7 @@
   "addToBlacklistButtonWithEmail": {
     "message": "Ajouter $EMAIL$ à la Blacklist",
     "placeholders": {
-      "email": {
-        "content": "$1"
-      }
+      "email": { "content": "$1" }
     }
   },
   "addDomainToBlacklistButton": {
@@ -28,9 +26,7 @@
   "addDomainToBlacklistButtonWithDomain": {
     "message": "Ajouter tout le domaine $DOMAIN$ à la Blacklist",
     "placeholders": {
-      "domain": {
-        "content": "$1"
-      }
+      "domain": { "content": "$1" }
     }
   },
   "configurationRequired": {
@@ -54,20 +50,16 @@
   "errorOccurred": {
     "message": "Erreur: $MESSAGE$",
     "placeholders": {
-      "message": {
-        "content": "$1"
-      }
+      "message": { "content": "$1" }
     }
   },
   "detectionNotTransmitted": {
     "message": "Déclaration spam échouée : $REASON$",
     "placeholders": {
-      "reason": {
-        "content": "$1"
-      }
+      "reason": { "content": "$1" }
     }
   },
   "moveWarning": {
     "message": "Action effectuée, mais impossible de déplacer le message vers Indésirables."
   }
-} 
+}
