@@ -1,8 +1,5 @@
 const CLEANMAILBOX_BASE_URL = "https://manager.clean-mailbox.com";
 
-browser.runtime.onStartup.addListener(() => {
-  console.log("CleanMailbox Extension demarree");
-});
 
 const ALLOWED_ACTIONS = new Set([
   "reportSpam",
