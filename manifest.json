@@ -8,7 +8,8 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "contact@ethersys.fr",
-      "strict_min_version": "140.0"
+      "strict_min_version": "140.0",
+      "update_url": "https://raw.githubusercontent.com/ethersys/CleanMailbox-Thunderbird-extension/main/updates.json"
     }
   },
   "permissions": [
