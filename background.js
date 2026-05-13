@@ -119,22 +119,28 @@ async function handleSpamReport(data) {
       payload = { raw: responseText };
     }
 
-    await moveMessageToJunk(messageId);
-
     const defaultReason = "Mail non passé par CleanMailbox";
     const reason =
       payload.reason != null && String(payload.reason).trim() !== ""
         ? String(payload.reason).trim()
         : defaultReason;
 
+    let moveError = null;
+    try {
+      await moveMessageToJunk(messageId);
+    } catch (e) {
+      moveError = e.message;
+    }
+
     if (ok && payload.success === true) {
-      return { success: true, result: payload };
+      return { success: true, result: payload, ...(moveError ? { moveError } : {}) };
     }
 
     return {
       success: false,
       errorCode: "detectionNotTransmitted",
       reason,
+      ...(moveError ? { moveError } : {}),
     };
   } catch (error) {
     console.error("Erreur lors du signalement du spam:", error);
@@ -184,8 +190,14 @@ async function addToBlacklist(data) {
       throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
     }
 
-    await moveMessageToJunk(messageId);
-    return { success: true, result: payload };
+    let moveError = null;
+    try {
+      await moveMessageToJunk(messageId);
+    } catch (e) {
+      moveError = e.message;
+    }
+
+    return { success: true, result: payload, ...(moveError ? { moveError } : {}) };
   } catch (error) {
     console.error("Erreur lors de l'ajout a la blacklist:", error);
     return { success: false, error: error.message };
@@ -257,8 +269,14 @@ async function addDomainToBlacklist(data) {
       throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
     }
 
-    await moveMessageToJunk(messageId);
-    return { success: true, result: payload };
+    let moveError = null;
+    try {
+      await moveMessageToJunk(messageId);
+    } catch (e) {
+      moveError = e.message;
+    }
+
+    return { success: true, result: payload, ...(moveError ? { moveError } : {}) };
   } catch (error) {
     console.error("Erreur lors de l'ajout du domaine a la blacklist:", error);
     return { success: false, error: error.message };

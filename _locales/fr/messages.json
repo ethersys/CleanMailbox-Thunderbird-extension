@@ -66,5 +66,8 @@
         "content": "$1"
       }
     }
+  },
+  "moveWarning": {
+    "message": "Action effectuée, mais impossible de déplacer le message vers Indésirables."
   }
 } 

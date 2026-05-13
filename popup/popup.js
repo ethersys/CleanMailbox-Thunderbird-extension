@@ -28,8 +28,11 @@ async function sendBackgroundAction(action) {
 
 async function reportSpam() {
   try {
-    await sendBackgroundAction("reportSpam");
+    const response = await sendBackgroundAction("reportSpam");
     alert(browser.i18n.getMessage("spamReportedSuccess"));
+    if (response.moveError) {
+      alert(browser.i18n.getMessage("moveWarning"));
+    }
   } catch (error) {
     if (error.errorCode === "detectionNotTransmitted") {
       const reason = error.reason || "Mail non passé par CleanMailbox";
@@ -42,8 +45,11 @@ async function reportSpam() {
 
 async function addToBlacklist() {
   try {
-    await sendBackgroundAction("addToBlacklist");
+    const response = await sendBackgroundAction("addToBlacklist");
     alert(browser.i18n.getMessage("blacklistAddSuccess"));
+    if (response.moveError) {
+      alert(browser.i18n.getMessage("moveWarning"));
+    }
   } catch (error) {
     alert(browser.i18n.getMessage("errorOccurred", error.message));
   }
@@ -51,8 +57,11 @@ async function addToBlacklist() {
 
 async function addDomainToBlacklist() {
   try {
-    await sendBackgroundAction("addDomainToBlacklist");
+    const response = await sendBackgroundAction("addDomainToBlacklist");
     alert(browser.i18n.getMessage("blacklistDomainAddSuccess"));
+    if (response.moveError) {
+      alert(browser.i18n.getMessage("moveWarning"));
+    }
   } catch (error) {
     alert(browser.i18n.getMessage("errorOccurred", error.message));
   }
