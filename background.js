@@ -8,7 +8,6 @@ const ALLOWED_ACTIONS = new Set([
   "reportSpam",
   "addToBlacklist",
   "addDomainToBlacklist",
-  "getBlacklist",
   "getDisplayedMessageInfo",
 ]);
 
@@ -46,21 +45,10 @@ browser.runtime.onMessage.addListener((message, sender) => {
       return addDomainToBlacklist(message.data);
     case "getDisplayedMessageInfo":
       return getDisplayedMessageInfo(message.data);
-    case "getBlacklist":
-      return getBlacklist();
     default:
       return Promise.resolve({ success: false, error: "Requête invalide." });
   }
 });
-
-async function getBlacklist() {
-  try {
-    const data = await browser.storage.local.get("blacklist");
-    return { success: true, blacklist: data.blacklist || [] };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
 
 /**
  * Requête via XHR pour éviter NetworkError sous Thunderbird
@@ -417,15 +405,11 @@ async function resolveJunkFolderId(messageId) {
 
 async function initialize() {
   try {
-    const { isConfigured, blacklist } = await browser.storage.local.get(["isConfigured", "blacklist"]);
+    const { isConfigured } = await browser.storage.local.get("isConfigured");
 
     if (!isConfigured) {
       await browser.runtime.openOptionsPage();
       return;
-    }
-
-    if (!blacklist) {
-      await browser.storage.local.set({ blacklist: [] });
     }
 
     const { apiKey, email } = await browser.storage.local.get(["apiKey", "email"]);
