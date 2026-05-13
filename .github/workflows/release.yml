@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (avec historique complet)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint JS (ESLint)
+        run: npm run lint
+
+      - name: Lint extension (web-ext)
+        run: npx web-ext lint --self-hosted
+
+      - name: Build XPI
+        run: npm run build
+
+      - name: Extraire la version depuis le tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Mettre à jour updates.json
+        run: node scripts/generate-update-manifest.js ${{ steps.version.outputs.VERSION }} cleanmailbox.xpi
+
+      - name: Créer la release GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: cleanmailbox.xpi
+          generate_release_notes: true
+
+      - name: Configurer git pour le commit de retour
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commiter updates.json sur main
+        run: |
+          git fetch origin main
+          git checkout main
+          git add updates.json
+          git diff --cached --quiet || git commit -m "chore: update updates.json for v${{ steps.version.outputs.VERSION }} [skip ci]"
+          git push origin main
