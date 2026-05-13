@@ -19,6 +19,9 @@ notes.md
 *.swo
 .vscode/
 .cursor/
+.claude/
+.doc/*
+CLAUDE.md
 
 # OS
 .DS_Store
@@ -28,3 +31,4 @@ Thumbs.db
 *.log
 npm-debug.log*
 .npm
+.doc/
