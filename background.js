@@ -143,14 +143,15 @@ async function addToBlacklist(data) {
     const config = await getRequiredConfig();
     const message = await browser.messages.get(messageId);
     const senderEmail = extractEmailAddress(message?.author);
-    const recipientDomain = extractRecipientDomain(message);
+    const account = await browser.accounts.get(message.folder.accountId);
+    const recipientEmail = account?.identities?.[0]?.email;
+    if (!recipientEmail) {
+      throw new Error("Impossible de determiner le domaine du destinataire.");
+    }
+    const recipientDomain = recipientEmail.slice(recipientEmail.lastIndexOf('@') + 1).toLowerCase();
 
     if (!senderEmail) {
       throw new Error("Impossible de determiner l'expediteur du message.");
-    }
-
-    if (!recipientDomain) {
-      throw new Error("Impossible de determiner le domaine du destinataire.");
     }
 
     const { ok, status, responseText } = await fetchWithXHR(
@@ -220,16 +221,17 @@ async function addDomainToBlacklist(data) {
     const message = await browser.messages.get(messageId);
     const senderEmail = extractEmailAddress(message?.author);
     const senderDomain = extractSenderDomain(senderEmail);
-    const recipientDomain = extractRecipientDomain(message);
+    const account = await browser.accounts.get(message.folder.accountId);
+    const recipientEmail = account?.identities?.[0]?.email;
+    if (!recipientEmail) {
+      throw new Error("Impossible de determiner le domaine du destinataire.");
+    }
+    const recipientDomain = recipientEmail.slice(recipientEmail.lastIndexOf('@') + 1).toLowerCase();
 
     if (!senderDomain) {
       throw new Error(
         "Impossible de determiner le domaine de l'expediteur du message.",
       );
-    }
-
-    if (!recipientDomain) {
-      throw new Error("Impossible de determiner le domaine du destinataire.");
     }
 
     const { ok, status, responseText } = await fetchWithXHR(
@@ -297,31 +299,6 @@ function extractSenderDomain(email) {
   return part || null;
 }
 
-function extractRecipientDomain(message) {
-  const candidates = [];
-
-  if (Array.isArray(message?.recipients)) {
-    candidates.push(...message.recipients);
-  }
-
-  if (Array.isArray(message?.to)) {
-    candidates.push(...message.to);
-  }
-
-  for (const item of candidates) {
-    const email = extractEmailAddress(item);
-    if (!email) {
-      continue;
-    }
-
-    const atIndex = email.lastIndexOf("@");
-    if (atIndex > 0 && atIndex < email.length - 1) {
-      return email.slice(atIndex + 1).toLowerCase();
-    }
-  }
-
-  return null;
-}
 
 async function getRawMessageBase64(messageId) {
   try {
