@@ -28,6 +28,7 @@ async function build() {
 
   await new Promise((resolve, reject) => {
     archive.on('error', reject);
+    output.on('error', reject);
     output.on('close', resolve);
     archive.pipe(output);
 
