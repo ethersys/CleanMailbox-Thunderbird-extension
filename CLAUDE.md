@@ -12,6 +12,24 @@ npm run build        # verify required files, then package cleanmailbox.xpi
 npm audit --audit-level=high    # dependency security check (run in CI)
 ```
 
+## Procédure de release
+
+1. Mettre à jour `version` dans `manifest.json` et `package.json` (même valeur, ex: `0.13.0`)
+2. Renseigner `changelog.md`
+3. Commiter ces changements sur `main`
+4. Pousser un tag Git — le workflow GitHub Actions prend le relais :
+   ```bash
+   git tag v0.13.0
+   git push origin v0.13.0
+   ```
+5. Le workflow `.github/workflows/release.yml` :
+   - Construit le XPI
+   - Met à jour `updates.json` avec le hash SHA-256 du nouveau XPI
+   - Crée la release GitHub avec le XPI en pièce jointe
+   - Reporte `updates.json` sur `main` (commit `[skip ci]`)
+
+Thunderbird interroge `updates.json` selon sa propre planification (généralement toutes les 24 h).
+
 There are no automated tests. Manual testing requires loading the `.xpi` in Thunderbird 140+.
 
 ## Architecture
