@@ -1,7 +1,21 @@
 # Changelog CleanMailbox Thunderbird Extension
 
 Ce fichier résume les changements importants pour les **utilisateurs finaux** à partir de la version **0.11.0**.  
-Les détails techniques et le journal complet restent dans `history.md`.
+
+## 0.13.0 — 2026-05-13
+
+- **Interface en français et en anglais**
+  - Nouveau sélecteur de langue dans la page de configuration (Français / English).
+  - Tous les textes du popup et des options sont traduits ; le choix est mémorisé entre les sessions.
+- **Messages de retour inline dans le popup**
+  - Les résultats des actions (succès, erreur, avertissement) s'affichent désormais directement dans le popup au lieu d'une boîte `alert()`.
+  - Si l'action API réussit mais que le déplacement vers Indésirables échoue, un avertissement est affiché sans bloquer le résultat principal.
+- **Robustesse des actions blacklist**
+  - Correction du « NetworkError » sur les appels blacklist (comme précédemment corrigé pour le signalement spam) : les réponses d'erreur 4xx sont désormais correctement reçues et affichées.
+  - Le déplacement vers Indésirables est tenté dans tous les cas, même si l'API répond en erreur.
+  - Résolution du domaine destinataire via le compte Thunderbird, plus fiable en CC/CCI.
+- **Mise à jour des dépendances**
+  - ESLint 10.3.0, web-ext 9.4.0.
 
 ## 0.12.0 — 2026-02-28
 
