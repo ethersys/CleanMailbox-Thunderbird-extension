@@ -19,12 +19,23 @@
             padding: 8px;
             cursor: pointer;
         }
+        #status {
+            margin-top: 8px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: none;
+        }
+        #status.success { background-color: #d4edda; color: #155724; }
+        #status.error   { background-color: #f8d7da; color: #721c24; }
+        #status.info    { background-color: #d1ecf1; color: #0c5460; }
     </style>
 </head>
 <body>
     <button id="spamButton" data-i18n="reportSpamButton">Signaler comme Spam</button>
     <button id="blacklistButton" data-i18n="addToBlacklistButton">Ajouter à la Blacklist</button>
     <button id="blacklistDomainButton" data-i18n="addDomainToBlacklistButton" disabled>Ajouter tout le domaine à la Blacklist</button>
+    <div id="status"></div>
     <script src="popup.js"></script>
 </body>
 </html>

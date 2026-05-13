@@ -1,3 +1,16 @@
+function showStatus(html, type) {
+  const div = document.getElementById("status");
+  div.innerHTML = html;
+  div.className = type;
+  div.style.display = "block";
+}
+
+function setButtonsDisabled(disabled) {
+  document.getElementById("spamButton").disabled = disabled;
+  document.getElementById("blacklistButton").disabled = disabled;
+  document.getElementById("blacklistDomainButton").disabled = disabled;
+}
+
 async function getCurrentMessageId() {
   const displayed = await browser.messageDisplay.getDisplayedMessages();
   const messages = Array.isArray(displayed) ? displayed : displayed?.messages;
@@ -27,43 +40,55 @@ async function sendBackgroundAction(action) {
 }
 
 async function reportSpam() {
+  setButtonsDisabled(true);
   try {
     const response = await sendBackgroundAction("reportSpam");
-    alert(browser.i18n.getMessage("spamReportedSuccess"));
+    let msg = browser.i18n.getMessage("spamReportedSuccess");
     if (response.moveError) {
-      alert(browser.i18n.getMessage("moveWarning"));
+      msg += "<br>" + browser.i18n.getMessage("moveWarning");
     }
+    showStatus(msg, "success");
   } catch (error) {
     if (error.errorCode === "detectionNotTransmitted") {
       const reason = error.reason || "Mail non passé par CleanMailbox";
-      alert(browser.i18n.getMessage("detectionNotTransmitted", reason));
+      showStatus(browser.i18n.getMessage("detectionNotTransmitted", reason), "info");
     } else {
-      alert(browser.i18n.getMessage("spamReportError"));
+      showStatus(browser.i18n.getMessage("spamReportError"), "error");
     }
+  } finally {
+    setButtonsDisabled(false);
   }
 }
 
 async function addToBlacklist() {
+  setButtonsDisabled(true);
   try {
     const response = await sendBackgroundAction("addToBlacklist");
-    alert(browser.i18n.getMessage("blacklistAddSuccess"));
+    let msg = browser.i18n.getMessage("blacklistAddSuccess");
     if (response.moveError) {
-      alert(browser.i18n.getMessage("moveWarning"));
+      msg += "<br>" + browser.i18n.getMessage("moveWarning");
     }
+    showStatus(msg, "success");
   } catch {
-    alert(browser.i18n.getMessage("blacklistAddError"));
+    showStatus(browser.i18n.getMessage("blacklistAddError"), "error");
+  } finally {
+    setButtonsDisabled(false);
   }
 }
 
 async function addDomainToBlacklist() {
+  setButtonsDisabled(true);
   try {
     const response = await sendBackgroundAction("addDomainToBlacklist");
-    alert(browser.i18n.getMessage("blacklistDomainAddSuccess"));
+    let msg = browser.i18n.getMessage("blacklistDomainAddSuccess");
     if (response.moveError) {
-      alert(browser.i18n.getMessage("moveWarning"));
+      msg += "<br>" + browser.i18n.getMessage("moveWarning");
     }
+    showStatus(msg, "success");
   } catch {
-    alert(browser.i18n.getMessage("blacklistAddError"));
+    showStatus(browser.i18n.getMessage("blacklistAddError"), "error");
+  } finally {
+    setButtonsDisabled(false);
   }
 }
 
@@ -111,10 +136,10 @@ async function updateBlacklistButtonLabels() {
 async function main() {
   const { isConfigured } = await browser.storage.local.get("isConfigured");
   if (!isConfigured) {
-    alert(browser.i18n.getMessage("configurationRequired"));
     document.getElementById("spamButton").disabled = true;
     document.getElementById("blacklistButton").disabled = true;
     document.getElementById("blacklistDomainButton").disabled = true;
+    showStatus(browser.i18n.getMessage("configurationRequired"), "info");
     return;
   }
 
