@@ -38,7 +38,7 @@ async function reportSpam() {
       const reason = error.reason || "Mail non passé par CleanMailbox";
       alert(browser.i18n.getMessage("detectionNotTransmitted", reason));
     } else {
-      alert(browser.i18n.getMessage("errorOccurred", error.message));
+      alert(browser.i18n.getMessage("spamReportError"));
     }
   }
 }
@@ -50,8 +50,8 @@ async function addToBlacklist() {
     if (response.moveError) {
       alert(browser.i18n.getMessage("moveWarning"));
     }
-  } catch (error) {
-    alert(browser.i18n.getMessage("errorOccurred", error.message));
+  } catch {
+    alert(browser.i18n.getMessage("blacklistAddError"));
   }
 }
 
@@ -62,8 +62,8 @@ async function addDomainToBlacklist() {
     if (response.moveError) {
       alert(browser.i18n.getMessage("moveWarning"));
     }
-  } catch (error) {
-    alert(browser.i18n.getMessage("errorOccurred", error.message));
+  } catch {
+    alert(browser.i18n.getMessage("blacklistAddError"));
   }
 }
 
@@ -108,10 +108,22 @@ async function updateBlacklistButtonLabels() {
   }
 }
 
-updateBlacklistButtonLabels();
+async function main() {
+  const { isConfigured } = await browser.storage.local.get("isConfigured");
+  if (!isConfigured) {
+    alert(browser.i18n.getMessage("configurationRequired"));
+    document.getElementById("spamButton").disabled = true;
+    document.getElementById("blacklistButton").disabled = true;
+    document.getElementById("blacklistDomainButton").disabled = true;
+    return;
+  }
 
-document.getElementById("spamButton").addEventListener("click", reportSpam);
-document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
-document
-  .getElementById("blacklistDomainButton")
-  .addEventListener("click", addDomainToBlacklist);
+  updateBlacklistButtonLabels();
+  document.getElementById("spamButton").addEventListener("click", reportSpam);
+  document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
+  document
+    .getElementById("blacklistDomainButton")
+    .addEventListener("click", addDomainToBlacklist);
+}
+
+main();
