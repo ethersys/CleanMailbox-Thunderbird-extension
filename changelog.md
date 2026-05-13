@@ -2,7 +2,7 @@
 
 Ce fichier résume les changements importants pour les **utilisateurs finaux** à partir de la version **0.11.0**.  
 
-## 0.13.0 — 2026-05-13
+## 1.0.0 — 2026-05-13
 
 - **Interface en français et en anglais**
   - Nouveau sélecteur de langue dans la page de configuration (Français / English).
@@ -14,6 +14,8 @@ Ce fichier résume les changements importants pour les **utilisateurs finaux** �
   - Correction du « NetworkError » sur les appels blacklist (comme précédemment corrigé pour le signalement spam) : les réponses d'erreur 4xx sont désormais correctement reçues et affichées.
   - Le déplacement vers Indésirables est tenté dans tous les cas, même si l'API répond en erreur.
   - Résolution du domaine destinataire via le compte Thunderbird, plus fiable en CC/CCI.
+- **Mise à jour automatique**
+  - L'extension se met désormais à jour automatiquement via le mécanisme natif de Thunderbird. Plus besoin de réinstaller manuellement le XPI à chaque nouvelle version.
 - **Mise à jour des dépendances**
   - ESLint 10.3.0, web-ext 9.4.0.
 

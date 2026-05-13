@@ -1,5 +1,5 @@
 [![Changelog](https://img.shields.io/badge/changelog-view%20details-lightgrey?style=flat-square&logo=gitbook&logoColor=white)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/blob/main/changelog.md)
-[![Release](https://img.shields.io/badge/release-0.13.0-blue?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases)
+[![Release](https://img.shields.io/badge/release-1.0.0-blue?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange?style=flat-square)](https://github.com/ethersys/CleanMailbox-Thunderbird-extension/blob/main/LICENSE)
 ![Thunderbird](https://img.shields.io/badge/Thunderbird-140+-6366f1?style=flat-square&logo=thunderbird&logoColor=white)
 ![Last Commit](https://img.shields.io/github/last-commit/ethersys/CleanMailbox-Thunderbird-extension/main?style=flat-square)

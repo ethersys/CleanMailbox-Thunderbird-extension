@@ -3,9 +3,9 @@
     "contact@ethersys.fr": {
       "updates": [
         {
-          "version": "0.13.0",
-          "update_link": "https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases/download/v0.13.0/cleanmailbox.xpi",
-          "update_hash": "sha256:4a01b99d6924def28c4c55658306bfd8ea2733dd38ad8cea06e1fed358712f07",
+          "version": "1.0.0",
+          "update_link": "https://github.com/ethersys/CleanMailbox-Thunderbird-extension/releases/download/v1.0.0/cleanmailbox.xpi",
+          "update_hash": "sha256:370f28edaffd56cbd73125738a9664dee3326ab9fc3492c85eccf3d0292b2159",
           "applications": {
             "gecko": {
               "strict_min_version": "140.0"
