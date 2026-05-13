@@ -1,48 +1,50 @@
 const fs = require('fs');
-const { execSync } = require('child_process');
+const path = require('path');
+const { ZipArchive } = require('archiver');
 
-// Fonction pour créer un répertoire s'il n'existe pas
-function ensureDirectoryExists(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
+const ROOT = path.resolve(__dirname, '..');
 
-// Fonction principale
+const requiredFiles = [
+  'manifest.json',
+  'background.js',
+  'popup/popup.html',
+  'popup/popup.js',
+  'options/options.html',
+  'options/options.js',
+];
+
 async function build() {
-  console.log('Début de la construction de l\'extension...');
+  console.log("Début de la construction de l'extension...");
 
-  // Vérifier la structure des dossiers
-  const requiredDirs = ['popup', 'options', '_locales', 'icons'];
-  requiredDirs.forEach(dir => ensureDirectoryExists(dir));
-
-  // Vérifier les fichiers requis
-  const requiredFiles = [
-    'manifest.json',
-    'background.js',
-    'popup/popup.html',
-    'popup/popup.js',
-    'options/options.html',
-    'options/options.js'
-  ];
-
-  requiredFiles.forEach(file => {
-    if (!fs.existsSync(file)) {
+  for (const file of requiredFiles) {
+    if (!fs.existsSync(path.join(ROOT, file))) {
       console.error(`Erreur: Le fichier ${file} est manquant`);
       process.exit(1);
     }
+  }
+
+  const output = fs.createWriteStream(path.join(ROOT, 'cleanmailbox.xpi'));
+  const archive = new ZipArchive({ zlib: { level: 9 } });
+
+  await new Promise((resolve, reject) => {
+    archive.on('error', reject);
+    output.on('close', resolve);
+    archive.pipe(output);
+
+    archive.file(path.join(ROOT, 'manifest.json'), { name: 'manifest.json' });
+    archive.file(path.join(ROOT, 'background.js'), { name: 'background.js' });
+    archive.directory(path.join(ROOT, 'popup'), 'popup');
+    archive.directory(path.join(ROOT, 'options'), 'options');
+    archive.directory(path.join(ROOT, '_locales'), '_locales');
+    archive.directory(path.join(ROOT, 'icons'), 'icons');
+
+    archive.finalize();
   });
 
-  // Créer le fichier XPI
-  try {
-    console.log('Création du fichier XPI...');
-    execSync('npm run package', { stdio: 'inherit' });
-    console.log('Extension générée avec succès: cleanmailbox.xpi');
-  } catch (error) {
-    console.error('Erreur lors de la création du fichier XPI:', error);
-    process.exit(1);
-  }
+  console.log(`Extension générée avec succès: cleanmailbox.xpi`);
 }
 
-// Exécuter le build
-build().catch(console.error); 
+build().catch((err) => {
+  console.error('Erreur lors de la construction:', err);
+  process.exit(1);
+});
