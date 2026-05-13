@@ -63,13 +63,13 @@ async function getBlacklist() {
 }
 
 /**
- * Requête POST report via XHR pour éviter NetworkError sous Thunderbird
+ * Requête via XHR pour éviter NetworkError sous Thunderbird
  * lorsque le serveur renvoie 4xx/5xx (fetch peut alors lever au lieu de retourner la réponse).
  */
-function fetchReportWithXHR(url, headers, body) {
+function fetchWithXHR(method, url, headers, body) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", url);
+    xhr.open(method, url);
     Object.entries(headers).forEach(([key, value]) => {
       xhr.setRequestHeader(key, value);
     });
@@ -101,7 +101,8 @@ async function handleSpamReport(data) {
     const config = await getRequiredConfig();
     const rawBase64 = await getRawMessageBase64(messageId);
 
-    const { ok, responseText } = await fetchReportWithXHR(
+    const { ok, responseText } = await fetchWithXHR(
+      "POST",
       `${CLEANMAILBOX_BASE_URL}/public-api/report`,
       {
         "Api-Key": config.apiKey,
@@ -161,20 +162,28 @@ async function addToBlacklist(data) {
       throw new Error("Impossible de determiner le domaine du destinataire.");
     }
 
-    const response = await fetch(
+    const { ok, status, responseText } = await fetchWithXHR(
+      "PUT",
       `${CLEANMAILBOX_BASE_URL}/public-api/domain/${encodeURIComponent(recipientDomain)}/bl`,
       {
-        method: "PUT",
-        headers: {
-          "Api-Key": config.apiKey,
-          email: config.email,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ address: senderEmail }),
+        "Api-Key": config.apiKey,
+        email: config.email,
+        "Content-Type": "application/json",
       },
+      JSON.stringify({ address: senderEmail }),
     );
 
-    const payload = await parseApiResponse(response);
+    let payload = {};
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      payload = { raw: responseText };
+    }
+
+    if (!ok) {
+      throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
+    }
+
     await moveMessageToJunk(messageId);
     return { success: true, result: payload };
   } catch (error) {
@@ -226,20 +235,28 @@ async function addDomainToBlacklist(data) {
       throw new Error("Impossible de determiner le domaine du destinataire.");
     }
 
-    const response = await fetch(
+    const { ok, status, responseText } = await fetchWithXHR(
+      "PUT",
       `${CLEANMAILBOX_BASE_URL}/public-api/domain/${encodeURIComponent(recipientDomain)}/bl`,
       {
-        method: "PUT",
-        headers: {
-          "Api-Key": config.apiKey,
-          email: config.email,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ address: `*@${senderDomain}` }),
+        "Api-Key": config.apiKey,
+        email: config.email,
+        "Content-Type": "application/json",
       },
+      JSON.stringify({ address: `*@${senderDomain}` }),
     );
 
-    const payload = await parseApiResponse(response);
+    let payload = {};
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      payload = { raw: responseText };
+    }
+
+    if (!ok) {
+      throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
+    }
+
     await moveMessageToJunk(messageId);
     return { success: true, result: payload };
   } catch (error) {
@@ -333,23 +350,6 @@ function arrayBufferToBase64(buffer) {
   }
 
   return btoa(binary);
-}
-
-async function parseApiResponse(response) {
-  let payload;
-  const responseText = await response.text();
-
-  try {
-    payload = responseText ? JSON.parse(responseText) : {};
-  } catch {
-    payload = { raw: responseText };
-  }
-
-  if (!response.ok) {
-    throw new Error(`Erreur HTTP ${response.status}: ${JSON.stringify(payload)}`);
-  }
-
-  return payload;
 }
 
 async function moveMessageToJunk(messageId) {
