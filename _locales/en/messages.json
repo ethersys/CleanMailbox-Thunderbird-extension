@@ -1,0 +1,65 @@
+{
+  "extensionName": {
+    "message": "CleanMailbox Thunderbird Extension"
+  },
+  "extensionDescription": {
+    "message": "Unofficial extension to report spam and manage the blacklist via the CleanMailbox API"
+  },
+  "popupTitle": {
+    "message": "CleanMailbox Actions"
+  },
+  "reportSpamButton": {
+    "message": "Report as Spam"
+  },
+  "addToBlacklistButton": {
+    "message": "Add to Blacklist"
+  },
+  "addToBlacklistButtonWithEmail": {
+    "message": "Add $EMAIL$ to Blacklist",
+    "placeholders": {
+      "email": { "content": "$1" }
+    }
+  },
+  "addDomainToBlacklistButton": {
+    "message": "Add entire domain to Blacklist"
+  },
+  "addDomainToBlacklistButtonWithDomain": {
+    "message": "Add entire domain $DOMAIN$ to Blacklist",
+    "placeholders": {
+      "domain": { "content": "$1" }
+    }
+  },
+  "configurationRequired": {
+    "message": "Please configure the extension first."
+  },
+  "spamReportedSuccess": {
+    "message": "Spam reported successfully!"
+  },
+  "spamReportError": {
+    "message": "Error while reporting spam."
+  },
+  "blacklistAddSuccess": {
+    "message": "Address added to blacklist successfully!"
+  },
+  "blacklistAddError": {
+    "message": "Error while adding to blacklist."
+  },
+  "blacklistDomainAddSuccess": {
+    "message": "Domain added to blacklist successfully!"
+  },
+  "errorOccurred": {
+    "message": "Error: $MESSAGE$",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "detectionNotTransmitted": {
+    "message": "Spam report failed: $REASON$",
+    "placeholders": {
+      "reason": { "content": "$1" }
+    }
+  },
+  "moveWarning": {
+    "message": "Action performed, but the message could not be moved to Junk."
+  }
+}
