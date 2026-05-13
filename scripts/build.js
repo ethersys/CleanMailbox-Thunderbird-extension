@@ -36,6 +36,7 @@ async function build() {
     archive.file(path.join(ROOT, 'background.js'), { name: 'background.js' });
     archive.directory(path.join(ROOT, 'popup'), 'popup');
     archive.directory(path.join(ROOT, 'options'), 'options');
+    archive.directory(path.join(ROOT, 'lib'), 'lib');
     archive.directory(path.join(ROOT, '_locales'), '_locales');
     archive.directory(path.join(ROOT, 'icons'), 'icons');
 
