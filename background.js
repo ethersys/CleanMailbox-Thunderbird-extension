@@ -134,8 +134,12 @@ async function handleSpamReport(data) {
 }
 
 async function addToBlacklist(data) {
+  const messageId = data?.messageId;
+  let apiSuccess = false;
+  let apiError = null;
+  let apiPayload = {};
+
   try {
-    const messageId = data?.messageId;
     if (!messageId) {
       throw new Error("Message introuvable pour la blacklist.");
     }
@@ -176,18 +180,25 @@ async function addToBlacklist(data) {
       throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
     }
 
-    let moveError = null;
-    try {
-      await moveMessageToJunk(messageId);
-    } catch (e) {
-      moveError = e.message;
-    }
-
-    return { success: true, result: payload, ...(moveError ? { moveError } : {}) };
+    apiSuccess = true;
+    apiPayload = payload;
   } catch (error) {
     console.error("Erreur lors de l'ajout a la blacklist:", error);
-    return { success: false, error: error.message };
+    apiError = error.message;
   }
+
+  // Déplacer vers Junk dans tous les cas (même comportement que handleSpamReport)
+  let moveError = null;
+  try {
+    await moveMessageToJunk(messageId);
+  } catch (e) {
+    moveError = e.message;
+  }
+
+  if (!apiSuccess) {
+    return { success: false, error: apiError, ...(moveError ? { moveError } : {}) };
+  }
+  return { success: true, result: apiPayload, ...(moveError ? { moveError } : {}) };
 }
 
 async function getDisplayedMessageInfo(data) {
@@ -211,8 +222,12 @@ async function getDisplayedMessageInfo(data) {
 }
 
 async function addDomainToBlacklist(data) {
+  const messageId = data?.messageId;
+  let apiSuccess = false;
+  let apiError = null;
+  let apiPayload = {};
+
   try {
-    const messageId = data?.messageId;
     if (!messageId) {
       throw new Error("Message introuvable pour la blacklist domaine.");
     }
@@ -256,18 +271,25 @@ async function addDomainToBlacklist(data) {
       throw new Error(`Erreur HTTP ${status}: ${JSON.stringify(payload)}`);
     }
 
-    let moveError = null;
-    try {
-      await moveMessageToJunk(messageId);
-    } catch (e) {
-      moveError = e.message;
-    }
-
-    return { success: true, result: payload, ...(moveError ? { moveError } : {}) };
+    apiSuccess = true;
+    apiPayload = payload;
   } catch (error) {
     console.error("Erreur lors de l'ajout du domaine a la blacklist:", error);
-    return { success: false, error: error.message };
+    apiError = error.message;
   }
+
+  // Déplacer vers Junk dans tous les cas (même comportement que handleSpamReport)
+  let moveError = null;
+  try {
+    await moveMessageToJunk(messageId);
+  } catch (e) {
+    moveError = e.message;
+  }
+
+  if (!apiSuccess) {
+    return { success: false, error: apiError, ...(moveError ? { moveError } : {}) };
+  }
+  return { success: true, result: apiPayload, ...(moveError ? { moveError } : {}) };
 }
 
 async function getRequiredConfig() {
