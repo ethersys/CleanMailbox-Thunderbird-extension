@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "archiver": "^8.0.0",
-    "eslint": "^10.0.2",
-    "web-ext": "^9.3.0"
+    "eslint": "^10.11.0",
+    "web-ext": "^10.7.0"
   }
 }

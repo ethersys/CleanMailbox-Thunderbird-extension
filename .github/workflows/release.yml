@@ -6,20 +6,20 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  release:
+  # Lint et build sans droit d'écriture : les dépendances npm ne voient jamais de token en écriture
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (avec historique complet)
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
           cache: 'npm'
@@ -36,15 +36,44 @@ jobs:
       - name: Build XPI
         run: npm run build
 
+      - name: Publier le XPI comme artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cleanmailbox-xpi
+          path: cleanmailbox.xpi
+          if-no-files-found: error
+          retention-days: 1
+
+  # Publication : aucun npm ci ici, uniquement des modules Node natifs
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: main
+
+      - name: Récupérer le XPI
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cleanmailbox-xpi
+
       - name: Extraire la version depuis le tag
         id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: echo "VERSION=${TAG_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Mettre à jour updates.json
-        run: node scripts/generate-update-manifest.js ${{ steps.version.outputs.VERSION }} cleanmailbox.xpi
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+        run: node scripts/generate-update-manifest.js "$VERSION" cleanmailbox.xpi
 
       - name: Créer la release GitHub
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: cleanmailbox.xpi
           generate_release_notes: true
@@ -55,9 +84,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Commiter updates.json sur main
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          git fetch origin main
-          git checkout main
           git add updates.json
-          git diff --cached --quiet || git commit -m "chore: update updates.json for v${{ steps.version.outputs.VERSION }} [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: update updates.json for v${VERSION} [skip ci]"
           git push origin main
