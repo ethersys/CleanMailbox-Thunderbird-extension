@@ -37,4 +37,16 @@ jobs:
         run: npm run build
 
       - name: Audit dependencies
-        run: npm audit --audit-level=high
+        # Advisories tolerated until a fixed release exists:
+        # - GHSA-86w9-cpqp-85rv: node-forge <=1.4.0, dev-only (web-ext > @devicefarmer/adbkit), not shipped in the XPI
+        env:
+          IGNORED_ADVISORIES: '["GHSA-86w9-cpqp-85rv"]'
+        run: |
+          remaining=$({ npm audit --json || true; } | jq -r --argjson ignored "$IGNORED_ADVISORIES" \
+            '[.vulnerabilities[].via[] | objects | select(.severity == "high" or .severity == "critical") | .url | sub(".*/"; "")] | unique - $ignored | .[]')
+          if [ -n "$remaining" ]; then
+            echo "::error::Unignored high/critical advisories: $remaining"
+            npm audit --audit-level=high
+            exit 1
+          fi
+          echo "No unignored high/critical advisories."
