@@ -102,6 +102,12 @@ Si une advisory sans version corrigée doit être tolérée temporairement, ajou
 
 Pour vérifier si une exception est toujours nécessaire : `npm audit --audit-level=high`. Si la faille n'apparaît plus, retirer son identifiant de `IGNORED_ADVISORIES` dans `ci.yml` et la ligne correspondante de ce tableau.
 
+Overrides npm en place (`overrides` dans `package.json`) :
+
+| Paquet forcé | Raison | À retirer quand |
+|---|---|---|
+| `readdir-glob` ^4.0.0 (via `archiver`) | `archiver` 8.0.0 impose `readdir-glob` ^3, qui tire `minimatch` 10.x vulnérable à [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) ; la v4 utilise `minimatch` ^11.0.1 avec la même API | une version d'`archiver` dépend de `readdir-glob` >= 4 |
+
 ### Installation manuelle dans Thunderbird
 
 1. Ouvrir Thunderbird.
