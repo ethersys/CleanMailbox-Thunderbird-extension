@@ -93,13 +93,14 @@ Le build vérifie les fichiers requis puis génère `cleanmailbox.xpi`.
 
 La CI (`.github/workflows/ci.yml`) échoue sur toute vulnérabilité npm de niveau *high* ou *critical*, sauf celles listées dans `IGNORED_ADVISORIES` (étape **Audit dependencies**).
 
-Vulnérabilités actuellement tolérées :
+Vulnérabilités actuellement tolérées : aucune.
+
+Si une advisory sans version corrigée doit être tolérée temporairement, ajouter son identifiant à `IGNORED_ADVISORIES` dans `ci.yml` et la documenter ici :
 
 | Advisory | Paquet | Raison | À retirer quand |
 |---|---|---|---|
-| [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv) | `node-forge` <= 1.4.0 (via `web-ext` > `@devicefarmer/adbkit`) | Aucune version corrigée publiée (au 26/10/2026) ; dépendance de dev uniquement, absente du XPI | une version corrigée de `node-forge` est disponible et remontée par `web-ext` / Dependabot |
 
-Pour vérifier si l'exception est toujours nécessaire : `npm audit --audit-level=high`. Si la faille n'apparaît plus, retirer son identifiant de `IGNORED_ADVISORIES` dans `ci.yml` et la ligne correspondante de ce tableau.
+Pour vérifier si une exception est toujours nécessaire : `npm audit --audit-level=high`. Si la faille n'apparaît plus, retirer son identifiant de `IGNORED_ADVISORIES` dans `ci.yml` et la ligne correspondante de ce tableau.
 
 ### Installation manuelle dans Thunderbird
 

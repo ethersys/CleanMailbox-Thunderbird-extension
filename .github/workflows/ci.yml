@@ -37,10 +37,10 @@ jobs:
         run: npm run build
 
       - name: Audit dependencies
-        # Advisories tolerated until a fixed release exists (keep in sync with README "Intégration continue"):
-        # - GHSA-86w9-cpqp-85rv: node-forge <=1.4.0, dev-only (web-ext > @devicefarmer/adbkit), not shipped in the XPI
+        # Advisories tolerated until a fixed release exists (keep in sync with README "Intégration continue").
+        # Currently none.
         env:
-          IGNORED_ADVISORIES: '["GHSA-86w9-cpqp-85rv"]'
+          IGNORED_ADVISORIES: '[]'
         run: |
           remaining=$({ npm audit --json || true; } | jq -r --argjson ignored "$IGNORED_ADVISORIES" \
             '[.vulnerabilities[].via[] | objects | select(.severity == "high" or .severity == "critical") | .url | sub(".*/"; "")] | unique - $ignored | .[]')
